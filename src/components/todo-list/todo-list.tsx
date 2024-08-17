@@ -9,7 +9,7 @@ export const TodoList = () => {
 
   const todosQuery = useQuery({ queryKey: ['todos'], queryFn: getTodos })
 
-  const [active, setActive] = useState<number | null>(null)
+  const [active, setActive] = useState<string | null>(null)
   const [title, setTitle] = useState('')
 
   const createMutation = useMutation({
@@ -76,7 +76,7 @@ export const TodoList = () => {
           <button
             onClick={() => {
               createMutation.mutate({
-                id: Date.now(),
+                id: Date.now().toString(),
                 title: title,
               })
             }}
