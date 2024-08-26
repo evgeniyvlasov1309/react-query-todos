@@ -1,3 +1,20 @@
 {
-  "todos": []
+  "todos": [
+    {
+      "title": "Поспать",
+      "userId": 1,
+      "id": 1723974874566
+    },
+    {
+      "id": 1724690397808,
+      "title": "ПОгулять"
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "password": "123qwe",
+      "id": 1
+    }
+  ]
 }

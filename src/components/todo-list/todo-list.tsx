@@ -1,29 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
-import { deleteTodo, editTodo, getTodos, postTodo } from '../../services/todo'
+import { useMemo, useState } from 'react'
+import {
+  deleteTodo,
+  editTodo,
+  getTodos,
+  postTodo,
+} from '../../services/todo-service'
 import { TodoItem } from '../todo-item'
 import styles from './todo-list.module.scss'
 
 export const TodoList = () => {
   const queryClient = useQueryClient()
 
-  const todosQuery = useQuery({ queryKey: ['todos'], queryFn: getTodos })
-
-  const [active, setActive] = useState<string | null>(null)
+  const [active, setActive] = useState<number | null>(null)
   const [title, setTitle] = useState('')
+
+  const todosQuery = useQuery({ queryKey: ['todos'], queryFn: getTodos })
 
   const createMutation = useMutation({
     mutationFn: postTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['todos'] })
       setTitle('')
     },
   })
 
   const editMutation = useMutation({
     mutationFn: editTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['todos'] })
       setTitle('')
       setActive(null)
     },
@@ -31,28 +36,37 @@ export const TodoList = () => {
 
   const deleteMutation = useMutation({
     mutationFn: deleteTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['todos'] })
     },
   })
 
+  const isLoading = useMemo(() => {
+    return todosQuery.isLoading
+  }, [todosQuery.isLoading])
+
   return (
     <div className={styles.root}>
-      <ul className={styles.list}>
-        {todosQuery.data?.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onEdit={() => {
-              setActive(todo.id)
-              setTitle(todo.title)
-            }}
-            onDelete={() => {
-              deleteMutation.mutate(todo.id)
-            }}
-          />
-        ))}
-      </ul>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <ul className={styles.list}>
+          {todosQuery.data?.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onEdit={() => {
+                setActive(todo.id)
+                setTitle(todo.title)
+              }}
+              onDelete={() => {
+                deleteMutation.mutate(todo.id)
+              }}
+            />
+          ))}
+        </ul>
+      )}
+
       <div className={styles.controls}>
         <input
           type="text"
@@ -70,19 +84,19 @@ export const TodoList = () => {
             }}
             disabled={!title}
           >
-            Сохранить
+            {editMutation.isPending ? 'Loading...' : 'Сохранить'}
           </button>
         ) : (
           <button
             onClick={() => {
               createMutation.mutate({
-                id: Date.now().toString(),
+                id: Date.now(),
                 title: title,
               })
             }}
             disabled={!title}
           >
-            Добавить
+            {createMutation.isPending ? 'Loading...' : 'Добавить'}
           </button>
         )}
       </div>

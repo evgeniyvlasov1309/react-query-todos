@@ -6,11 +6,12 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:react-hooks/recommended',
     'plugin:@tanstack/eslint-plugin-query/recommended',
-    'plugin:react/recommended',
-    'plugin:react/jsx-runtime'
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: true,
+  },
   plugins: ['react-refresh', '@tanstack/query'],
   rules: {
     'react-refresh/only-export-components': [
